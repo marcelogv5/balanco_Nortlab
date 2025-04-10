@@ -85,7 +85,7 @@
         function getProductFromSheet() {
             // Conectar com o Google Sheets via Google Apps Script
             const request = gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: '1FcJAB4dXARVd76CixXGTd0Rg_d7HdvzLf-A-CvsM5Lg', // Seu ID de planilha
+                spreadsheetId: '1FcJAB4dXARVd76CixXGTd0Rg_d7HdvzLf-A-CvsM5Lg', // Seu ID da planilha
                 range: 'Produtos!A2:B'
             });
 
@@ -167,7 +167,7 @@
             };
 
             const request = gapi.client.sheets.spreadsheets.values.append({
-                spreadsheetId: '1FcJAB4dXARVd76CixXGTd0Rg_d7HdvzLf-A-CvsM5Lg', // Seu ID de planilha
+                spreadsheetId: '1FcJAB4dXARVd76CixXGTd0Rg_d7HdvzLf-A-CvsM5Lg', // Seu ID da planilha
                 range: range,
                 valueInputOption: 'RAW',
                 resource: valueRange
