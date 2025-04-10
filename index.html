@@ -18,9 +18,9 @@
         <h2>Escolha a Unidade</h2>
         <button onclick="selectUnidade('Matriz')">Matriz</button>
         <button onclick="selectUnidade('Mirabela')">Mirabela</button>
-        <button onclick="selectUnidade('Montes Claros')">Montes Claros</button>
-        <button onclick="selectUnidade('Cardiominas')">Cardiominas</button>
-        <button onclick="selectUnidade('Pintopólis')">Pintopólis</button>
+        <button onclick="selectUnidade('Moc')">Moc</button>
+        <button onclick="selectUnidade('Cardiminas')">Cardiminas</button>
+        <button onclick="selectUnidade('Pintopolis')">Pintopolis</button>
     </div>
 
     <!-- Tela de Consulta de Produto -->
@@ -85,7 +85,7 @@
         function getProductFromSheet() {
             // Conectar com o Google Sheets via Google Apps Script
             const request = gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: '1FcJAB4dXARVd76CixXGTd0Rg_d7HdvzLf-A-CvsM5Lg', // Seu ID da planilha
+                spreadsheetId: '1FcJAB4dXARVd76CixXGTd0Rg_d7HdvzLf-A-CvsM5Lg', // Seu ID de planilha
                 range: 'Produtos!A2:B'
             });
 
@@ -104,23 +104,13 @@
 
                 if (foundProduct) {
                     productName = foundProduct;
-                    document.getElementById('product-info').innerHTML = `
-                        <p>Produto: ${productName}</p>
-                        <button onclick="showProductConfirmation()">Confirmar Produto</button>
-                    `;
+                    document.getElementById('product-info').innerHTML = `Produto: ${productName}`;
+                    document.getElementById('product-confirmation').classList.remove('hidden');
+                    document.getElementById('product-search').classList.add('hidden');
                 } else {
                     document.getElementById('product-info').innerHTML = 'Produto não encontrado!';
                 }
             });
-        }
-
-        function showProductConfirmation() {
-            document.getElementById('product-confirmation').classList.remove('hidden');
-            document.getElementById('product-search').classList.add('hidden');
-            document.getElementById('confirm-product').innerHTML = `
-                <p>Você selecionou o produto: ${productName}</p>
-                <button onclick="backToSearch()">Voltar</button>
-            `;
         }
 
         function confirmProduct() {
@@ -158,7 +148,7 @@
         }
 
         function sendToSheet(data) {
-            const range = `${unidadeSelecionada}!A1`;
+            const range = `${unidadeSelecionada}!A1`; // Aqui ele usa o nome da unidade como nome da aba
             const valueRange = {
                 range,
                 values: [
@@ -167,7 +157,7 @@
             };
 
             const request = gapi.client.sheets.spreadsheets.values.append({
-                spreadsheetId: '1FcJAB4dXARVd76CixXGTd0Rg_d7HdvzLf-A-CvsM5Lg', // Seu ID da planilha
+                spreadsheetId: '1FcJAB4dXARVd76CixXGTd0Rg_d7HdvzLf-A-CvsM5Lg', // Seu ID de planilha
                 range: range,
                 valueInputOption: 'RAW',
                 resource: valueRange
