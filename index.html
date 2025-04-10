@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balanço de Estoque</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        label, input, select, button { margin-bottom: 10px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Balanço de Estoque</h1>
+
+    <!-- Tela de Seleção de Unidade -->
+    <div id="unidade-selection">
+        <h2>Escolha a Unidade</h2>
+        <button onclick="selectUnidade('Matriz')">Matriz</button>
+        <button onclick="selectUnidade('Mirabela')">Mirabela</button>
+        <button onclick="selectUnidade('Montes Claros')">Montes Claros</button>
+        <button onclick="selectUnidade('Cardiominas')">Cardiominas</button>
+        <button onclick="selectUnidade('Pintopólis')">Pintopólis</button>
+    </div>
+
+    <!-- Tela de Consulta de Produto -->
+    <div id="product-search" class="hidden">
+        <h2>Consulta de Produto</h2>
+        <label for="product-code">Código do Produto:</label>
+        <input type="text" id="product-code" placeholder="Digite o código do produto">
+        <button onclick="searchProduct()">Buscar</button>
+        <div id="product-info"></div>
+    </div>
+
+    <!-- Tela de Confirmação de Produto -->
+    <div id="product-confirmation" class="hidden">
+        <h2>Confirmar Produto</h2>
+        <div id="confirm-product"></div>
+        <button onclick="confirmProduct()">Sim</button>
+        <button onclick="backToSearch()">Não</button>
+    </div>
+
+    <!-- Tela de Informar Dados -->
+    <div id="inform-data" class="hidden">
+        <h2>Informar Dados</h2>
+        <p id="product-details"></p>
+        <label for="umb">UMB:</label>
+        <select id="umb">
+            <option value="PCT">PCT</option>
+            <option value="UND">UND</option>
+            <option value="CX">CX</option>
+        </select><br>
+
+        <label for="lote">Lote:</label>
+        <input type="text" id="lote" required><br>
+
+        <label for="validade">Validade:</label>
+        <input type="date" id="validade" required><br>
+
+        <label for="qtd">Quantidade:</label>
+        <input type="number" id="qtd" required><br>
+
+        <button onclick="submitData()">Enviar</button>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        let unidadeSelecionada = '';
+        let productCode = '';
+        let productName = '';
+
+        function selectUnidade(unidade) {
+            unidadeSelecionada = unidade;
+            document.getElementById('unidade-selection').classList.add('hidden');
+            document.getElementById('product-search').classList.remove('hidden');
+        }
+
+        function searchProduct() {
+            productCode = document.getElementById('product-code').value;
+            if (productCode) {
+                getProductFromSheet();
+            }
+        }
+
+        function getProductFromSheet() {
+            // Conectar com o Google Sheets via Google Apps Script
+            const request = gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: '1FcJAB4dXARVd76CixXGTd0Rg_d7HdvzLf-A-CvsM5Lg', // Seu ID de planilha
+                range: 'Produtos!A2:B'
+            });
+
+            request.then((response) => {
+                const rows = response.result.values;
+                let foundProduct = null;
+
+                if (rows) {
+                    for (let i = 0; i < rows.length; i++) {
+                        if (rows[i][0] == productCode) {
+                            foundProduct = rows[i][1];
+                            break;
+                        }
+                    }
+                }
+
+                if (foundProduct) {
+                    productName = foundProduct;
+                    document.getElementById('product-info').innerHTML = `
+                        <p>Produto: ${productName}</p>
+                        <button onclick="showProductConfirmation()">Confirmar Produto</button>
+                    `;
+                } else {
+                    document.getElementById('product-info').innerHTML = 'Produto não encontrado!';
+                }
+            });
+        }
+
+        function showProductConfirmation() {
+            document.getElementById('product-confirmation').classList.remove('hidden');
+            document.getElementById('product-search').classList.add('hidden');
+            document.getElementById('confirm-product').innerHTML = `
+                <p>Você selecionou o produto: ${productName}</p>
+                <button onclick="backToSearch()">Voltar</button>
+            `;
+        }
+
+        function confirmProduct() {
+            document.getElementById('product-confirmation').classList.add('hidden');
+            document.getElementById('inform-data').classList.remove('hidden');
+            document.getElementById('product-details').innerHTML = `Código: ${productCode} | Produto: ${productName}`;
+        }
+
+        function backToSearch() {
+            document.getElementById('product-confirmation').classList.add('hidden');
+            document.getElementById('product-search').classList.remove('hidden');
+        }
+
+        function submitData() {
+            const umb = document.getElementById('umb').value;
+            const lote = document.getElementById('lote').value;
+            const validade = document.getElementById('validade').value;
+            const qtd = document.getElementById('qtd').value;
+
+            if (umb && lote && validade && qtd) {
+                const data = {
+                    unit: unidadeSelecionada,
+                    productCode,
+                    productName,
+                    umb,
+                    lote,
+                    validade,
+                    qtd
+                };
+
+                sendToSheet(data);
+            } else {
+                alert('Preencha todos os campos!');
+            }
+        }
+
+        function sendToSheet(data) {
+            const range = `${unidadeSelecionada}!A1`;
+            const valueRange = {
+                range,
+                values: [
+                    [data.productCode, data.productName, data.umb, data.lote, data.validade, data.qtd]
+                ]
+            };
+
+            const request = gapi.client.sheets.spreadsheets.values.append({
+                spreadsheetId: '1FcJAB4dXARVd76CixXGTd0Rg_d7HdvzLf-A-CvsM5Lg', // Seu ID de planilha
+                range: range,
+                valueInputOption: 'RAW',
+                resource: valueRange
+            });
+
+            request.then((response) => {
+                alert('Envio efetuado com sucesso!');
+                if (confirm('Deseja informar mais deste produto?')) {
+                    document.getElementById('inform-data').classList.remove('hidden');
+                    document.getElementById('product-details').innerHTML = `Código: ${productCode} | Produto: ${productName}`;
+                } else {
+                    document.getElementById('product-search').classList.remove('hidden');
+                    document.getElementById('inform-data').classList.add('hidden');
+                }
+            });
+        }
+
+        function initializeGoogleAPI() {
+            gapi.client.init({
+                discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
+            }).then(() => {
+                console.log('Google API Initialized');
+            });
+        }
+
+        gapi.load('client', initializeGoogleAPI);
+    </script>
+</body>
+</html>
