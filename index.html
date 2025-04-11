@@ -55,18 +55,39 @@
     display: none;
   }
 
-  #unidade-selection button {
-    width: 100%;
-    margin-bottom: 10px;
+ #unidade-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+#unidade-selection button {
+  width: 100%;
+  padding: 16px;
+  font-size: 20px;
+  border-radius: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+#unidade-selection button:hover {
+  background-color: #0056b3;
+}
+
+@media (min-width: 600px) {
+  #unidade-selection {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
   }
 
-  @media (min-width: 600px) {
-    #unidade-selection button {
-      width: 48%;
-      display: inline-block;
-      margin: 1%;
-    }
+  #unidade-selection button {
+    width: 48%;
   }
+}
+
 </style>
 
 </head>
