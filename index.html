@@ -98,39 +98,48 @@
     }
 
     function submitData() {
-      const umb = document.getElementById('umb').value;
-      const lote = document.getElementById('lote').value;
-      const validade = document.getElementById('validade').value;
-      const qtd = document.getElementById('qtd').value;
+  const umb = document.getElementById('umb').value;
+  const lote = document.getElementById('lote').value;
+  const validade = document.getElementById('validade').value;
+  const qtd = document.getElementById('qtd').value;
 
-      if (!umb || !lote || !validade || !qtd) {
-        alert('Preencha todos os campos!');
-        return;
-      }
+  if (!umb || !lote || !validade || !qtd) {
+    alert('Preencha todos os campos!');
+    return;
+  }
 
-      const form = new FormData();
-      form.append('unidade', unidade);
-      form.append('productCode', productCode);
-      form.append('productName', productName);
-      form.append('umb', umb);
-      form.append('lote', lote);
-      form.append('validade', validade);
-      form.append('qtd', qtd);
+  const form = new FormData();
+  form.append('unidade', unidade);
+  form.append('productCode', productCode);
+  form.append('productName', productName);
+  form.append('umb', umb);
+  form.append('lote', lote);
+  form.append('validade', validade);
+  form.append('qtd', qtd);
 
-      fetch('https://script.google.com/macros/s/AKfycby7gOpvnP0BhxOFKLRzl37qf9UNMTLO85xaYxqEQrXn7Q8bRjyumeKAcB0aPuAtYMU/exec', {
-        method: 'POST',
-        body: form
-      })
-      .then(res => res.text())
-      .then(() => {
-        alert('Dados enviados com sucesso!');
-        if (confirm('Deseja lançar outro produto?')) {
-          document.getElementById('inform-data').reset;
-        } else {
-          location.reload();
-        }
-      });
+  fetch('https://script.google.com/macros/s/AKfycby7gOpvnP0BhxOFKLRzl37qf9UNMTLO85xaYxqEQrXn7Q8bRjyumeKAcB0aPuAtYMU/exec', {
+    method: 'POST',
+    body: form
+  })
+  .then(response => response.text())
+  .then(result => {
+    alert('Dados enviados com sucesso!');
+    if (confirm('Deseja lançar outro produto?')) {
+      // Limpa os campos para novo envio
+      document.getElementById('lote').value = '';
+      document.getElementById('validade').value = '';
+      document.getElementById('qtd').value = '';
+      document.getElementById('inform-data').scrollIntoView({ behavior: 'smooth' });
+    } else {
+      location.reload();
     }
+  })
+  .catch(error => {
+    console.error('Erro ao enviar:', error);
+    alert('Erro ao enviar os dados. Tente novamente.');
+  });
+}
+
   </script>
 </body>
 </html>
